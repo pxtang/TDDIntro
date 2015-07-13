@@ -2,3 +2,5 @@
 printStream/
 .gradle
 .DS_Store
+*.class
+build/
