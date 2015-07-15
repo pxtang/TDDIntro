@@ -2,6 +2,7 @@ package com.thoughtworks.tddintro.library;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -9,12 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LibraryTest {
 
+    private List<String> books;
+    private PrintStream printStream;
+    private Library library;
+    private DateTimeFormatter dateTimeFormatter;
+    private DateTime time;
 
     /*
 
@@ -22,30 +26,47 @@ public class LibraryTest {
 
      */
 
+    @Before
+    public void setup() {
+        books = new ArrayList<>();
+        printStream = mock(PrintStream.class);
+        dateTimeFormatter = mock(DateTimeFormatter.class);
+
+        library = new Library(books, printStream, dateTimeFormatter);
+
+        time = new DateTime();
+    }
+
 
     @Test
     public void shouldPrintBookTitleWhenThereIsOneBook() {
 
-        List<String> books = new ArrayList<>();
         String title = "Book Title";
         books.add(title);
-        PrintStream printStream = mock(PrintStream.class);
-        Library library = new Library(books, printStream, null);
-
         library.listBooks();
+        verify(printStream).println("Book Title");
 
         // add a verify statement here that shows that the book title was printed by to the printStream
     }
 
     @Test
     public void shouldPrintNothingWhenThereAreNoBooks() {
-
+        library.listBooks();
+        verify(printStream, never()).println();
         // implement me
     }
 
     @Test
     public void shouldPrintBothBookTitlesWhenThereAreTwoBooks() {
+        String t1 = "Catch-22";
+        String t2 = "Freakonomics";
 
+        books.add(t1);
+        books.add(t2);
+
+        library.listBooks();
+        verify(printStream).println("Catch-22");
+        verify(printStream).println("Freakonomics");
         // implement me
     }
 
@@ -59,15 +80,8 @@ public class LibraryTest {
     // This one is done for you
     @Test
     public void shouldWelcomeUser() {
-        List<String> books = new ArrayList<>();
-        PrintStream printStream = mock(PrintStream.class);
-        DateTimeFormatter dateTimeFormatter = mock(DateTimeFormatter.class);
-        Library library = new Library(books, printStream, dateTimeFormatter);
-
         // We don't need to mock DateTime because it is a value object
         // We can't mock it because it is a final class
-        DateTime time = new DateTime();
-        
         library.welcome(time);
         
         verify(printStream).println(contains("Welcome"));
@@ -75,22 +89,21 @@ public class LibraryTest {
 
     @Test
     public void shouldDisplayFormattedTimeWhenFormattedTimeIsAnEmptyString() {
-        List<String> books = new ArrayList<>();
-        PrintStream printStream = mock(PrintStream.class);
-        DateTime time = new DateTime();
-        DateTimeFormatter dateTimeFormatter = mock(DateTimeFormatter.class);
 
         when(dateTimeFormatter.print(time)).thenReturn("");
 
-        Library library = new Library(books, printStream, dateTimeFormatter);
-
         library.welcome(time);
 
-        // add a verify here
+        verify(printStream).println("Welcome to the library! The current time is ");
     }
 
     @Test
     public void shouldDisplayFormattedTimeWhenFormattedTimeIsNotEmpty() {
+        when(dateTimeFormatter.print(time)).thenReturn("2015-07-13 17:31:01");
+
+        library.welcome(time);
+
+        verify(printStream).println(contains("2015-07-13 17:31:01"));
 
         // implement me
         // then move common test variables into a setup method
